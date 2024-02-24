@@ -3,6 +3,7 @@ package com.eoruc.backend.user;
 import com.eoruc.backend.user.dto.CustomResponseStatusException;
 import com.eoruc.backend.user.dto.RegisterUserDto;
 import com.eoruc.backend.user.dto.SaveUserDto;
+import com.eoruc.backend.user.dto.UserDto;
 import java.util.Optional;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -36,5 +37,14 @@ public class UserService {
 
   public Optional<User> findByEmail(String email) {
     return Optional.ofNullable(userRepository.findByEmail(email));
+  }
+
+  public UserDto findUserByEmail(String email) {
+    Optional<User> user = findByEmail(email);
+
+    if (user.isPresent()) {
+      return userAssembler.assemble(user.get());
+    }
+    return null;
   }
 }
