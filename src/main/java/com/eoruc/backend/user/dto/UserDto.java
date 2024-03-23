@@ -22,7 +22,6 @@ public class UserDto implements Serializable {
   private String password;
   private String name;
   private String surname;
-  private Status status;
   private String email;
   private String deviceId;
   private LocalDateTime lastSuccessfulLoginDate;
