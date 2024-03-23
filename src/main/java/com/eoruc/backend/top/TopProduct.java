@@ -1,8 +1,8 @@
 package com.eoruc.backend.top;
 
+import jakarta.persistence.*;
 import java.io.Serializable;
 import java.time.LocalDateTime;
-import javax.persistence.*;
 import javax.validation.constraints.NotBlank;
 import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;

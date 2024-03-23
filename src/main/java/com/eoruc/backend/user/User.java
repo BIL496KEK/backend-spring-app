@@ -1,10 +1,12 @@
 package com.eoruc.backend.user;
 
-import com.eoruc.backend.user.dto.Status;
+import com.eoruc.backend.role.Role;
+import jakarta.persistence.*;
 import java.io.Serializable;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import javax.persistence.*;
+import java.util.HashSet;
+import java.util.Set;
 import javax.validation.constraints.Email;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
@@ -12,6 +14,7 @@ import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
+@Data
 @Getter
 @Setter
 @NoArgsConstructor
@@ -19,7 +22,7 @@ import org.hibernate.annotations.UpdateTimestamp;
 @Builder(toBuilder = true)
 @Entity
 @Table(
-    name = "\"users\"",
+    name = "users",
     uniqueConstraints = {@UniqueConstraint(columnNames = "email")})
 @ToString
 public class User implements Serializable {
@@ -39,14 +42,8 @@ public class User implements Serializable {
   private String surname;
 
   @Email(regexp = "^$|^(.+)@(.+)$", message = "Email is not valid")
+  @Column(unique = true)
   private String email;
-
-  @Enumerated(EnumType.STRING)
-  private Status status;
-
-  private String deviceId;
-
-  private int unsuccessfullLoginCount;
 
   @NotNull private LocalDate birthDate;
 
@@ -64,4 +61,11 @@ public class User implements Serializable {
 
   @Column(columnDefinition = "TIMESTAMP")
   private LocalDateTime lastUnsuccessfulLoginDate;
+
+  @ManyToMany(fetch = FetchType.LAZY)
+  @JoinTable(
+      name = "user_roles",
+      joinColumns = @JoinColumn(name = "user_id"),
+      inverseJoinColumns = @JoinColumn(name = "role_id"))
+  private Set<Role> roles = new HashSet<>();
 }

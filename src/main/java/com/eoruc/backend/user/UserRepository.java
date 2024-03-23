@@ -1,8 +1,13 @@
 package com.eoruc.backend.user;
 
-import org.springframework.data.repository.CrudRepository;
+import java.util.Optional;
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.stereotype.Repository;
 
-public interface UserRepository extends CrudRepository<User, Long> {
+@Repository
+public interface UserRepository extends JpaRepository<User, Long> {
 
-  User findByEmail(String email);
+  Optional<User> findByEmail(String email);
+
+  Boolean existsByEmail(String email);
 }

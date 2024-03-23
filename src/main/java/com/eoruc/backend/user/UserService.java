@@ -36,15 +36,12 @@ public class UserService {
   }
 
   public Optional<User> findByEmail(String email) {
-    return Optional.ofNullable(userRepository.findByEmail(email));
+    return userRepository.findByEmail(email);
   }
 
   public UserDto findUserByEmail(String email) {
     Optional<User> user = findByEmail(email);
 
-    if (user.isPresent()) {
-      return userAssembler.assemble(user.get());
-    }
-    return null;
+    return user.map(value -> userAssembler.assemble(value)).orElse(null);
   }
 }

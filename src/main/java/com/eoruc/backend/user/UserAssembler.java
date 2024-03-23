@@ -2,7 +2,6 @@ package com.eoruc.backend.user;
 
 import com.eoruc.backend.user.dto.RegisterUserDto;
 import com.eoruc.backend.user.dto.SaveUserDto;
-import com.eoruc.backend.user.dto.Status;
 import com.eoruc.backend.user.dto.UserDto;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
@@ -12,7 +11,6 @@ import org.springframework.stereotype.Component;
 public class UserAssembler {
   public User assembleForRegistration(RegisterUserDto registerUserDto) {
     return User.builder()
-        .status(Status.ACTIVE)
         .password(registerUserDto.getPassword())
         .name(registerUserDto.getName())
         .surname(registerUserDto.getSurname())
@@ -35,8 +33,6 @@ public class UserAssembler {
         .name(user.getName())
         .surname(user.getSurname())
         .email(user.getEmail())
-        .status(user.getStatus())
-        .deviceId(user.getDeviceId())
         .birthDate(user.getBirthDate())
         .userId(user.getId())
         .lastSuccessfulLoginDate(user.getLastSuccessfulLoginDate())

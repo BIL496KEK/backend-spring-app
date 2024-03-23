@@ -2,6 +2,7 @@ package com.eoruc.backend.user.dto;
 
 import java.io.Serializable;
 import java.time.LocalDate;
+import java.util.Set;
 import javax.validation.constraints.Email;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
@@ -18,9 +19,6 @@ public class RegisterUserDto implements Serializable {
 
   private static final long serialVersionUID = 890918530771218810L;
 
-  @NotBlank(message = "phone is mandatory")
-  private String phone;
-
   @NotBlank(message = "password is mandatory")
   private String password;
 
@@ -34,4 +32,6 @@ public class RegisterUserDto implements Serializable {
   private String email;
 
   @NotNull private LocalDate birthDate;
+
+  private Set<String> role;
 }
