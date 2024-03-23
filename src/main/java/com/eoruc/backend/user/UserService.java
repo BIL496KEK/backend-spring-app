@@ -1,13 +1,13 @@
 package com.eoruc.backend.user;
 
-import com.eoruc.backend.user.dto.CustomResponseStatusException;
-import com.eoruc.backend.user.dto.RegisterUserDto;
-import com.eoruc.backend.user.dto.SaveUserDto;
-import com.eoruc.backend.user.dto.UserDto;
+import com.eoruc.backend.auth.dto.RegisterUserDto;
+import com.eoruc.backend.auth.token.RefreshTokenService;
+import com.eoruc.backend.user.dto.*;
 import java.util.Optional;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -16,7 +16,10 @@ import org.springframework.transaction.annotation.Transactional;
 public class UserService {
 
   @Autowired private UserRepository userRepository;
+
+  @Autowired private RefreshTokenService refreshTokenService;
   @Autowired private UserAssembler userAssembler;
+  @Autowired PasswordEncoder encoder;
 
   public User saveNewUser(User user) {
     user.setEmail(user.getEmail().toLowerCase());
@@ -43,5 +46,23 @@ public class UserService {
     Optional<User> user = findByEmail(email);
 
     return user.map(value -> userAssembler.assemble(value)).orElse(null);
+  }
+
+  public void forgotPassword(ForgotPasswordRequest forgotPasswordRequest) {
+    Optional<User> user =
+        userRepository.findByEmailAndNameAndSurnameAndBirthDate(
+            forgotPasswordRequest.getEmail(),
+            forgotPasswordRequest.getName(),
+            forgotPasswordRequest.getSurname(),
+            forgotPasswordRequest.getBirthDate());
+
+    if (user.isEmpty()) {
+      throw new CustomResponseStatusException(HttpStatus.NOT_FOUND, "user.not.found");
+    }
+
+    user.get().setPassword(encoder.encode(forgotPasswordRequest.getNewPassword()));
+
+    refreshTokenService.deleteByUserId(user.get().getId());
+    userRepository.save(user.get());
   }
 }

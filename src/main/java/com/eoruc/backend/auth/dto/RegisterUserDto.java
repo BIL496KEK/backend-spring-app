@@ -1,4 +1,4 @@
-package com.eoruc.backend.user.dto;
+package com.eoruc.backend.auth.dto;
 
 import java.io.Serializable;
 import java.time.LocalDate;

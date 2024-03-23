@@ -1,6 +1,6 @@
 package com.eoruc.backend.user;
 
-import com.eoruc.backend.user.dto.RegisterUserDto;
+import com.eoruc.backend.auth.dto.RegisterUserDto;
 import com.eoruc.backend.user.dto.SaveUserDto;
 import com.eoruc.backend.user.dto.UserDto;
 import lombok.RequiredArgsConstructor;
