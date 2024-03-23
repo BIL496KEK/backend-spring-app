@@ -2,6 +2,11 @@ package com.eoruc.backend.auth;
 
 import com.eoruc.backend.auth.dto.JwtResponse;
 import com.eoruc.backend.auth.dto.MessageResponse;
+import com.eoruc.backend.auth.dto.RefreshTokenRequest;
+import com.eoruc.backend.auth.dto.RefreshTokenResponse;
+import com.eoruc.backend.auth.token.RefreshToken;
+import com.eoruc.backend.auth.token.RefreshTokenService;
+import com.eoruc.backend.auth.token.TokenRefreshException;
 import com.eoruc.backend.config.security.jwt.JwtUtils;
 import com.eoruc.backend.config.security.services.UserDetailsImpl;
 import com.eoruc.backend.role.ERole;
@@ -39,6 +44,8 @@ public class AuthController {
 
   @Autowired JwtUtils jwtUtils;
 
+  @Autowired RefreshTokenService refreshTokenService;
+
   @PostMapping("/login")
   public ResponseEntity<?> authenticateUser(@Valid @RequestBody LoginUserDto loginUserDto) {
 
@@ -48,16 +55,44 @@ public class AuthController {
                 loginUserDto.getEmail(), loginUserDto.getPassword()));
 
     SecurityContextHolder.getContext().setAuthentication(authentication);
-    String jwt = jwtUtils.generateJwtToken(authentication);
-
     UserDetailsImpl userDetails = (UserDetailsImpl) authentication.getPrincipal();
+    String jwt = jwtUtils.generateJwtToken(userDetails);
+
     List<String> roles =
         userDetails.getAuthorities().stream()
             .map(item -> item.getAuthority())
             .collect(Collectors.toList());
 
+    RefreshToken refreshToken = refreshTokenService.createRefreshToken(userDetails.getId());
+
     return ResponseEntity.ok(
-        new JwtResponse(jwt, "Bearer", userDetails.getId(), userDetails.getEmail(), roles));
+        new JwtResponse(
+            jwt,
+            "Bearer",
+            refreshToken.getToken(),
+            userDetails.getId(),
+            userDetails.getEmail(),
+            roles));
+  }
+
+  @PostMapping("/refresh-token")
+  public ResponseEntity<?> refreshToken(@Valid @RequestBody RefreshTokenRequest request) {
+    String requestRefreshToken = request.getRefreshToken();
+
+    return refreshTokenService
+        .findByToken(requestRefreshToken)
+        .map(refreshTokenService::verifyExpiration)
+        .map(RefreshToken::getUser)
+        .map(
+            user -> {
+              String token = jwtUtils.generateTokenFromUsername(user.getEmail());
+              return ResponseEntity.ok(
+                  new RefreshTokenResponse(token, requestRefreshToken, "Bearer"));
+            })
+        .orElseThrow(
+            () ->
+                new TokenRefreshException(
+                    requestRefreshToken, "Refresh token is not in database!"));
   }
 
   @PostMapping("/register")

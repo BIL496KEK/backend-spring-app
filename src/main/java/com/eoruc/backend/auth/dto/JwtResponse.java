@@ -13,6 +13,7 @@ import lombok.Setter;
 public class JwtResponse {
   private String token;
   private String type;
+  private String refreshToken;
   private Long id;
   private String email;
   private List<String> roles;
